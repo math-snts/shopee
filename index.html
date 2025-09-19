@@ -1,9 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Toolbox Shopee — Etiquetas • Calculadora • Dashboard</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name': 'Toolbox Shopee',
+    'short_name': 'ShopeeTool',
+    'description': 'Ferramentas para vendedores Shopee',
+    'start_url': '/',
+    'display': 'standalone',
+    'background_color': '#ff7a18',
+    'theme_color': '#ff7a18',
+    'icons': [
+      {
+        'src': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjRkY3QTE4Ii8+CjxwYXRoIGQ9Ik0xMjAgOTZIMzZWMzZIMTIwVjkyNkM5MiAxMjQgNjQgMTUyIDM0LjUgMTUyQzE1LjI1IDE1MiAwIDEzNi42NSAwIDEyMEgxMjBWMzk2SDBWMjYwSDEyMFY5NloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=',
+        'sizes': '192x192',
+        'type': 'image/svg+xml'
+      }
+    ]
+  }">
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,269 +36,596 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#ff7a18">
   <style>
-    /* Small visual polish on top of Tailwind */
-    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    .app-header { backdrop-filter: blur(6px); }
-    /* smooth page transitions */
-    .page { display: none; animation: fadeIn .18s ease-in-out; }
-    .page.visible { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
-    /* touch targets */
-    .nav-btn { padding: .6rem .9rem; border-radius: .6rem; }
+    /* Enhanced visual polish */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .app-header {
+      backdrop-filter: blur(12px);
+    }
+
+    /* Smooth transitions with better easing */
+    .page {
+      display: none;
+      animation: fadeIn .25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .page.visible {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Touch targets improved */
+    .nav-btn {
+      padding: .75rem 1rem;
+      border-radius: .75rem;
+      transition: all .15s ease;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      border: 2px solid #f3f4f6;
+      border-top: 2px solid #f97316;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: .75rem;
+      color: white;
+      z-index: 50;
+      transform: translateX(400px);
+      transition: transform .3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      background: #10b981;
+    }
+
+    .toast.error {
+      background: #ef4444;
+    }
+
+    /* Improved drop zone */
+    .drop-zone {
+      transition: all .2s ease;
+    }
+
+    .drop-zone.dragover {
+      border-color: #f97316;
+      background: #fef3c7;
+      transform: scale(1.02);
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+<body class="bg-gradient-to-br from-slate-50 to-orange-50 text-slate-900 min-h-screen">
 
   <!-- HEADER / NAV -->
-  <header class="app-header fixed top-0 left-0 right-0 z-30 bg-white/80 border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="app-header fixed top-0 left-0 right-0 z-40 bg-white/90 border-b border-slate-200/50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center text-white font-bold shadow">SH</div>
+        <div
+          class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center text-white font-bold shadow-lg">
+          SH</div>
         <div>
-          <div class="text-lg font-bold">Toolbox Shopee</div>
-          <div class="text-xs text-slate-500 -mt-1">Etiquetas • Calculadora • Dashboard</div>
+          <div class="text-xl font-bold text-slate-800">Toolbox Shopee</div>
+          <div class="text-sm text-slate-500">Etiquetas • Calculadora • Dashboard Analítico</div>
         </div>
       </div>
 
-      <nav class="hidden md:flex items-center gap-2">
-        <button class="nav-btn text-sm font-medium" data-target="home">Início</button>
-        <button class="nav-btn text-sm font-medium" data-target="etiquetas">Etiquetas</button>
-        <button class="nav-btn text-sm font-medium" data-target="calculadora">Calculadora</button>
-        <button class="nav-btn text-sm font-medium" data-target="dashboard">Dashboard</button>
+      <nav class="hidden lg:flex items-center gap-3">
+        <button
+          class="nav-btn text-sm font-semibold text-slate-700 bg-white/80 hover:bg-orange-50 border border-slate-200"
+          data-target="home">🏠 Início</button>
+        <button
+          class="nav-btn text-sm font-semibold text-slate-700 bg-white/80 hover:bg-orange-50 border border-slate-200"
+          data-target="etiquetas">🏷️ Etiquetas</button>
+        <button
+          class="nav-btn text-sm font-semibold text-slate-700 bg-white/80 hover:bg-orange-50 border border-slate-200"
+          data-target="calculadora">🧮 Calculadora</button>
+        <button
+          class="nav-btn text-sm font-semibold text-slate-700 bg-white/80 hover:bg-orange-50 border border-slate-200"
+          data-target="dashboard">📊 Dashboard</button>
       </nav>
 
       <!-- Mobile menu button -->
-      <div class="md:hidden">
-        <button id="menuBtn" class="p-2 rounded-md border bg-white shadow-sm">
-          <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      <div class="lg:hidden">
+        <button id="menuBtn" class="p-2.5 rounded-lg border bg-white shadow-sm hover:shadow-md transition-shadow">
+          <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
     </div>
 
     <!-- Mobile dropdown -->
-    <div id="mobileMenu" class="md:hidden hidden border-t bg-white/90">
-      <div class="px-4 py-3 flex flex-col gap-1">
-        <button class="text-left p-3 hover:bg-slate-50" data-target="home">Início</button>
-        <button class="text-left p-3 hover:bg-slate-50" data-target="etiquetas">Etiquetas</button>
-        <button class="text-left p-3 hover:bg-slate-50" data-target="calculadora">Calculadora</button>
-        <button class="text-left p-3 hover:bg-slate-50" data-target="dashboard">Dashboard</button>
+    <div id="mobileMenu" class="lg:hidden hidden border-t bg-white/95 backdrop-blur-sm">
+      <div class="px-4 py-4 flex flex-col gap-2">
+        <button class="text-left p-3 rounded-lg hover:bg-orange-50 transition-colors" data-target="home">🏠
+          Início</button>
+        <button class="text-left p-3 rounded-lg hover:bg-orange-50 transition-colors" data-target="etiquetas">🏷️
+          Etiquetas</button>
+        <button class="text-left p-3 rounded-lg hover:bg-orange-50 transition-colors" data-target="calculadora">🧮
+          Calculadora</button>
+        <button class="text-left p-3 rounded-lg hover:bg-orange-50 transition-colors" data-target="dashboard">📊
+          Dashboard</button>
       </div>
     </div>
   </header>
 
   <!-- MAIN -->
-  <main class="pt-28 pb-12">
-    <div class="max-w-5xl mx-auto px-4">
+  <main class="pt-20 pb-16">
+    <div class="max-w-6xl mx-auto px-4">
 
       <!-- HOME / DESCRIÇÃO -->
-      <section id="home" class="page visible bg-white rounded-2xl p-6 shadow-sm">
-        <div class="md:flex md:items-center md:gap-6">
-          <div class="flex-1">
-            <h1 class="text-2xl md:text-3xl font-extrabold">Toolkit Shopee — Expedição, Custos e Visão</h1>
-            <p class="mt-3 text-slate-700">Reúna suas ferramentas mais importantes num único lugar: gere etiquetas a partir de ZPL, calcule suas margens e visualize o desempenho das vendas. Otimizado para desktop e celular — use no navegador ou instale como PWA.</p>
+      <section id="home" class="page visible bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+        <div class="lg:flex lg:items-center lg:gap-8">
+          <div class="flex-1 mb-6 lg:mb-0">
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-800 mb-4">🚀 Toolbox Shopee — Sua Central de
+              Expedição & Análises</h1>
+            <p class="text-lg text-slate-600 mb-6 leading-relaxed">Otimize sua operação com ferramentas integradas: gere
+              etiquetas profissionais, calcule margens precisas e analise vendas com insights acionáveis. PWA completa
+              para uso offline e mobile.</p>
 
-            <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div class="p-3 border rounded-lg bg-gradient-to-r from-white to-orange-50">
-                <h3 class="font-semibold">Gerador de Etiquetas</h3>
-                <p class="text-sm text-slate-600">Converte ZPL (.txt ou .zip) em PDF pronto para impressão via Labelary. Adiciona cabeçalho e contador automaticamente.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div
+                class="p-6 border border-orange-200 rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 shadow-md">
+                <div class="text-2xl mb-2">🏷️</div>
+                <h3 class="font-bold text-slate-800 mb-2">Gerador de Etiquetas</h3>
+                <p class="text-sm text-slate-600">ZPL → PDF com Labelary. Suporte ZIP/TXT, drag & drop, retry automático
+                  e headers personalizados.</p>
               </div>
-              <div class="p-3 border rounded-lg bg-gradient-to-r from-white to-yellow-50">
-                <h3 class="font-semibold">Calculadora Shopee</h3>
-                <p class="text-sm text-slate-600">Calcule comissões, impostos, taxa por item, valor líquido e margem de lucro — ideal para precificação rápida.</p>
+              <div
+                class="p-6 border border-yellow-200 rounded-2xl bg-gradient-to-r from-yellow-50 to-green-50 shadow-md">
+                <div class="text-2xl mb-2">🧮</div>
+                <h3 class="font-bold text-slate-800 mb-2">Calculadora Avançada</h3>
+                <p class="text-sm text-slate-600">Comissões, impostos, afiliados e margens. Salva histórico local e
+                  valida inputs em tempo real.</p>
               </div>
-              <div class="p-3 border rounded-lg bg-gradient-to-r from-white to-purple-50">
-                <h3 class="font-semibold">Dashboard</h3>
-                <p class="text-sm text-slate-600">Carregue CSV/XLSX da Shopee para KPIs, chart de taxas e top 10 produtos — fácil de interpretar e exportável visualmente.</p>
+              <div
+                class="p-6 border border-purple-200 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 shadow-md">
+                <div class="text-2xl mb-2">📊</div>
+                <h3 class="font-bold text-slate-800 mb-2">Dashboard Analítico</h3>
+                <p class="text-sm text-slate-600">KPIs, gráficos de margens, top produtos e recomendações de
+                  precificação. Export CSV.</p>
               </div>
             </div>
 
-            <div class="mt-6 flex gap-3">
-              <button class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow" data-target="etiquetas">Abrir Etiquetas</button>
-              <button class="bg-yellow-400 text-black px-4 py-2 rounded-lg shadow" data-target="calculadora">Abrir Calculadora</button>
-              <button class="bg-purple-500 text-white px-4 py-2 rounded-lg shadow" data-target="dashboard">Abrir Dashboard</button>
+            <div class="flex flex-wrap gap-4 mb-8">
+              <button
+                class="bg-orange-500 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
+                data-target="etiquetas">Abrir Etiquetas</button>
+              <button
+                class="bg-yellow-400 text-black px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
+                data-target="calculadora">Abrir Calculadora</button>
+              <button
+                class="bg-purple-500 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold"
+                data-target="dashboard">Abrir Dashboard</button>
             </div>
 
-            <div class="mt-6 text-sm text-slate-500">
-              <p><strong>Benefícios:</strong> agilidade na expedição, melhor controle de custos, decisões baseadas em dados e interface consistente para celular.</p>
+            <div class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl">
+              <p><strong>✨ Novidades:</strong> PWA offline, validações robustas, export de insights e análises
+                preditivas para decisões rápidas.</p>
             </div>
           </div>
 
-          <div class="hidden md:block w-56">
-            <div class="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-xl p-4">
-              <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=6f5f63b5f03cf7f4cb5d8d13e2960f75" alt="mockup" class="rounded-lg shadow" />
+          <div class="hidden lg:block w-64">
+            <div class="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-2xl p-6 shadow-lg">
+              <img
+                src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=2b4a4e8f4e4e4e4e4e4e4e4e4e4e4e4"
+                alt="Dashboard mockup" class="rounded-xl shadow-md w-full" />
             </div>
           </div>
         </div>
       </section>
 
       <!-- ETIQUETAS / ZPL -> PDF -->
-      <section id="etiquetas" class="page mt-6 bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">Gerador de Etiquetas (ZPL → PDF)</h2>
-          <div class="text-sm text-slate-500">Selecione .txt ou .zip com ZPL</div>
+      <section id="etiquetas" class="page mb-8 bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-800">🏷️ Gerador de Etiquetas Profissionais</h2>
+          <div class="text-sm text-slate-500 flex items-center gap-2">
+            <span>Selecione .txt ou .zip</span>
+            <div class="spinner hidden" id="etqSpinner"></div>
+          </div>
         </div>
 
-        <div class="mt-4 grid gap-4">
-          <div class="flex flex-col sm:flex-row gap-3 items-start">
-            <input type="file" id="etqFileInput" multiple class="block w-full sm:w-auto p-3 border rounded-lg bg-white" accept=".txt,.zip">
-            <input type="text" id="etqRedeSocial" placeholder="Rede social (opcional)" class="p-3 border rounded-lg w-full sm:w-60">
-            <div class="flex gap-2">
-              <button id="etqProcessBtn" class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow">Gerar PDF</button>
-              <button id="etqClearBtn" class="bg-white border px-4 py-2 rounded-lg">Limpar</button>
+        <div class="grid gap-6">
+          <div
+            class="flex flex-col md:flex-row gap-4 items-start p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
+            <input type="file" id="etqFileInput" multiple class="flex-1 p-3 border rounded-xl bg-white shadow-sm"
+              accept=".txt,.zip">
+            <input type="text" id="etqRedeSocial" placeholder="Rede social (ex: Instagram @loja)"
+              class="p-3 border rounded-xl w-full md:w-64 bg-white shadow-sm">
+            <div class="flex gap-3">
+              <button id="etqProcessBtn"
+                class="bg-orange-500 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2">
+                Gerar PDF
+              </button>
+              <button id="etqClearBtn"
+                class="bg-white border px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all">Limpar</button>
             </div>
           </div>
 
-          <div id="etqDropZone" class="drop-zone p-6 border-dashed border-2 border-slate-200 rounded-lg text-slate-500 text-center">
-            Arraste .txt ou .zip aqui (ou use o seletor acima)
+          <div id="etqDropZone"
+            class="drop-zone p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center text-slate-500 cursor-pointer hover:border-orange-300 transition-colors">
+            <div class="text-4xl mb-2">📁</div>
+            <p class="text-lg font-medium mb-1">Arraste arquivos aqui</p>
+            <p class="text-sm">Ou clique para selecionar .txt ou .zip</p>
           </div>
 
-          <div class="w-full">
-            <div class="h-2 bg-slate-100 rounded overflow-hidden"><div id="etqProgress" class="h-full w-0 bg-gradient-to-r from-orange-400 to-yellow-300"></div></div>
-            <div class="mt-2 text-sm text-slate-500" id="etqEta">Tempo estimado: --</div>
-            <div class="mt-2 text-sm text-slate-600 max-h-40 overflow-auto p-2 bg-slate-50 rounded" id="etqStatus"></div>
+          <div class="bg-slate-50 p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-600">Progresso:</span>
+              <span id="etqProgressText" class="text-sm text-slate-500">0/0</span>
+            </div>
+            <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+              <div id="etqProgress" class="h-full bg-gradient-to-r from-orange-400 to-yellow-400 w-0 transition-all">
+              </div>
+            </div>
+            <div class="mt-2 text-sm text-slate-500 flex justify-between">
+              <span id="etqEta">Tempo: --</span>
+              <span id="etqSpeed">Velocidade: --/s</span>
+            </div>
+            <div class="mt-3 text-sm text-slate-600 max-h-32 overflow-auto p-2 bg-white rounded" id="etqStatus"></div>
           </div>
         </div>
       </section>
 
       <!-- CALCULADORA -->
-      <section id="calculadora" class="page mt-6 bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">Calculadora Shopee</h2>
-          <div class="text-sm text-slate-500">Calcule taxa, imposto, afiliado, valor líquido e margem</div>
+      <section id="calculadora" class="page mb-8 bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-slate-800">🧮 Calculadora de Margens Shopee</h2>
+          <div class="text-sm text-slate-500">Validações automáticas e histórico salvo</div>
         </div>
 
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input type="number" id="c_valorVenda" placeholder="Valor de venda (R$)" class="p-3 border rounded-lg">
-          <input type="number" id="c_taxaComissao" placeholder="Taxa de comissão (%)" class="p-3 border rounded-lg">
-          <input type="number" id="c_taxaServico" placeholder="Taxa de serviço (%)" class="p-3 border rounded-lg">
-          <input type="number" id="c_taxaItem" placeholder="Taxa por item (R$)" class="p-3 border rounded-lg">
-          <input type="number" id="c_aliquota" placeholder="Alíquota de imposto (%)" class="p-3 border rounded-lg">
-          <input type="number" id="c_afiliado" placeholder="Porcentagem afiliado (%)" class="p-3 border rounded-lg">
-          <input type="number" id="c_precoCusto" placeholder="Preço de custo (R$)" class="p-3 border rounded-lg">
-        </div>
-
-        <div class="mt-4 flex gap-3">
-          <button id="c_calcularBtn" class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow">Calcular</button>
-          <button id="c_limparBtn" class="bg-white border px-4 py-2 rounded-lg">Limpar</button>
-        </div>
-
-        <div id="c_resultado" class="mt-4 hidden bg-slate-50 p-4 rounded">
-          <h3 class="font-bold">Resultados</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 text-sm">
-            <div><strong>Taxa Shopee:</strong> R$ <span id="c_taxaShopee">0</span></div>
-            <div><strong>Imposto:</strong> R$ <span id="c_imposto">0</span></div>
-            <div><strong>Afiliado:</strong> R$ <span id="c_afiliadoValor">0</span></div>
-            <div><strong>Valor líquido:</strong> R$ <span id="c_valorLiquido">0</span></div>
-            <div><strong>Lucro líquido:</strong> R$ <span id="c_lucroLiquido">0</span></div>
-            <div><strong>Margem:</strong> <span id="c_margem">0</span>%</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Valor de Venda (R$)</label>
+            <input type="number" id="c_valorVenda" min="0" step="0.01" placeholder="Ex: 29.90"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
           </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Comissão Shopee (%)</label>
+            <input type="number" id="c_taxaComissao" min="0" max="100" step="0.01" placeholder="Ex: 12.00"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Taxa de Serviço (%)</label>
+            <input type="number" id="c_taxaServico" min="0" max="100" step="0.01" placeholder="Ex: 2.00"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Taxa por Item (R$)</label>
+            <input type="number" id="c_taxaItem" min="0" step="0.01" placeholder="Ex: 0.50"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Alíquota Imposto (%)</label>
+            <input type="number" id="c_aliquota" min="0" max="100" step="0.01" placeholder="Ex: 12.00"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Afiliado (%)</label>
+            <input type="number" id="c_afiliado" min="0" max="100" step="0.01" placeholder="Ex: 5.00"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 mb-1">Preço de Custo (R$)</label>
+            <input type="number" id="c_precoCusto" min="0" step="0.01" placeholder="Ex: 15.00"
+              class="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <div class="flex gap-4 mb-6">
+          <button id="c_calcularBtn"
+            class="bg-orange-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2">
+            Calcular Margem
+          </button>
+          <button id="c_limparBtn"
+            class="bg-white border px-8 py-3 rounded-xl shadow-sm hover:shadow-md transition-all">Limpar</button>
+          <button id="c_salvarBtn"
+            class="bg-green-500 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all">💾
+            Salvar</button>
+        </div>
+
+        <div id="c_resultado"
+          class="hidden bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-200">
+          <h3 class="text-xl font-bold text-green-800 mb-4">Resultados da Análise</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-green-700 block mb-1">Taxa Shopee Total</strong>
+              <span class="text-2xl font-bold">R$ <span id="c_taxaShopee">0</span></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-blue-700 block mb-1">Valor Líquido</strong>
+              <span class="text-2xl font-bold">R$ <span id="c_valorLiquido">0</span></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-emerald-700 block mb-1">Lucro Líquido</strong>
+              <span class="text-2xl font-bold">R$ <span id="c_lucroLiquido">0</span></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-purple-700 block mb-1">Imposto Estimado</strong>
+              <span class="text-2xl font-bold">R$ <span id="c_imposto">0</span></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-pink-700 block mb-1">Afiliado</strong>
+              <span class="text-2xl font-bold">R$ <span id="c_afiliadoValor">0</span></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm">
+              <strong class="text-lg text-orange-700 block mb-1">Margem Final</strong>
+              <span class="text-2xl font-bold text-orange-600"><span id="c_margem">0</span>%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico Salvo -->
+        <div id="c_historico" class="hidden mt-6">
+          <h4 class="text-lg font-bold mb-3">📋 Histórico de Cálculos</h4>
+          <div id="c_historicoList" class="space-y-2 max-h-40 overflow-auto bg-slate-50 p-4 rounded-xl"></div>
         </div>
       </section>
 
-      <!-- DASHBOARD -->
+      <!-- DASHBOARD ANALÍTICO SHOPPING -->
       <section id="dashboard" class="page mt-6 bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">Dashboard de Vendas</h2>
-          <div class="text-sm text-slate-500">Upload .csv / .xlsx da Shopee</div>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-bold">📈 Dashboard Analítico - Sacolas Personalizadas</h2>
+            <p class="text-sm text-slate-500 mt-1">Análise de rentabilidade e decisões de precificação</p>
+          </div>
+          <div class="flex gap-2">
+            <input type="file" id="dbFileInput" accept=".csv,.xlsx" class="hidden">
+            <label for="dbFileInput"
+              class="bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-orange-600">
+              📁 Upload Relatório
+            </label>
+            <button id="dbResetBtn" class="bg-white border px-4 py-2 rounded-lg text-sm">🔄 Reset</button>
+            <button id="dbDebugBtn" class="bg-slate-100 border px-3 py-2 rounded text-xs">🔍 Debug</button>
+          </div>
         </div>
 
-        <div class="mt-4 grid gap-4">
-          <div class="flex flex-wrap gap-3 items-center">
-            <input type="file" id="dbFileInput" accept=".csv,.xlsx" class="p-3 border rounded-lg bg-white">
-            <button id="dbResetBtn" class="bg-white border px-3 py-2 rounded-lg">Reset</button>
-            <button id="dbDebugBtn" class="bg-slate-100 border px-3 py-2 rounded-lg">Debug</button>
+        <!-- Status Upload -->
+        <div id="dbStatus" class="mb-4 p-3 rounded-lg hidden border">
+          <div class="flex items-center gap-2 text-sm">
+            <div id="dbStatusIcon" class="w-4 h-4 rounded-full"></div>
+            <span id="dbStatusText"></span>
+          </div>
+        </div>
+
+        <!-- KPIs Principais -->
+        <div id="dbKpis" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6 hidden">
+          <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Faturamento Bruto</p>
+            <p id="dbFaturamento" class="text-lg font-bold text-orange-700">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Lucro Líquido</p>
+            <p id="dbLucro" class="text-lg font-bold text-green-700">-</p>
+            <p id="dbMargemGeral" class="text-xs text-slate-400">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Pedidos Únicos</p>
+            <p id="dbPedidos" class="text-lg font-bold text-blue-700">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Ticket Médio</p>
+            <p id="dbTicketMedio" class="text-lg font-bold text-purple-700">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Taxas Shopee</p>
+            <p id="dbTaxasTotais" class="text-lg font-bold text-yellow-700">-</p>
+            <p id="dbTaxasPerc" class="text-xs text-slate-400">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Frete Médio</p>
+            <p id="dbFreteMedio" class="text-lg font-bold text-indigo-700">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">ROI Geral</p>
+            <p id="dbRoi" class="text-lg font-bold text-emerald-700">-</p>
+          </div>
+          <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl shadow-sm text-center">
+            <p class="text-xs text-slate-500 font-medium">Devoluções</p>
+            <p id="dbDevolucoes" class="text-lg font-bold text-red-700">-</p>
+            <p id="dbDevolucoesPerc" class="text-xs text-slate-400">-</p>
+          </div>
+        </div>
+
+        <!-- Análises e Insights -->
+        <div id="dbAnalises" class="mb-6 hidden">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">🎯 Insights & Recomendações</h3>
+            <div class="flex gap-2">
+              <button id="dbExportInsights" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-sm text-sm">📊
+                Export CSV</button>
+              <button id="dbToggleAnalise" class="bg-slate-100 px-3 py-2 rounded text-xs">👁️ Ver detalhes</button>
+            </div>
           </div>
 
-          <div id="dbDebug" class="hidden">
-            <pre id="dbDebugText" class="bg-slate-50 p-3 rounded text-xs max-h-40 overflow-auto"></pre>
+          <!-- Cards de Insights -->
+          <div id="dbRecomendacoes" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <!-- Preenchido via JS -->
           </div>
+        </div>
 
-          <div id="dbKpis" class="grid grid-cols-2 md:grid-cols-6 gap-4 hidden">
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Faturamento Bruto</p>
-              <p id="dbFaturamento" class="text-lg font-bold">-</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Receita Líquida</p>
-              <p id="dbReceita" class="text-lg font-bold">-</p>
-              <p id="dbReceitaPerc" class="text-xs text-slate-400">-</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Nº Pedidos (IDs)</p>
-              <p id="dbPedidos" class="text-lg font-bold">-</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Ticket Médio</p>
-              <p id="dbTicket" class="text-lg font-bold">-</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Frete Pago</p>
-              <p id="dbFrete" class="text-lg font-bold">-</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-              <p class="text-sm text-slate-500">Taxas Totais</p>
-              <p id="dbTaxasTotais" class="text-lg font-bold">-</p>
-              <p id="dbTaxasPerc" class="text-xs text-slate-400">-</p>
-            </div>
+        <!-- Gráficos -->
+        <div id="dbCharts" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+          <div class="bg-white p-4 rounded-xl shadow-sm lg:col-span-1">
+            <h3 class="font-bold mb-3 text-slate-800">📊 Margem por Produto</h3>
+            <div class="h-48"><canvas id="dbMargemChart"></canvas></div>
           </div>
-
-          <div id="dbCharts" class="grid md:grid-cols-2 gap-6 hidden">
-            <div class="bg-white p-4 rounded-xl shadow">
-              <h3 class="font-bold mb-2">Distribuição das Taxas</h3>
-              <div class="h-48"><canvas id="dbPieChart"></canvas></div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow">
-              <h3 class="font-bold mb-2">Top 10 Produtos (quantidade)</h3>
-              <div class="h-48 mb-3"><canvas id="dbTopBarChart"></canvas></div>
-              <div class="overflow-auto max-h-40 border rounded">
-                <table class="w-full text-sm text-left">
-                  <thead><tr class="bg-slate-100"><th class="p-2">Produto</th><th class="p-2 text-center">Qtd</th><th class="p-2 text-right">Faturamento</th></tr></thead>
-                  <tbody id="dbTopProdutos"></tbody>
-                </table>
-              </div>
-            </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm">
+            <h3 class="font-bold mb-3 text-slate-800">💰 Composição das Taxas</h3>
+            <div class="h-48"><canvas id="dbPieChart"></canvas></div>
           </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm">
+            <h3 class="font-bold mb-3 text-slate-800">🏆 Top 8 Produtos</h3>
+            <div class="h-48 mb-3"><canvas id="dbTopBarChart"></canvas></div>
+            <div class="text-xs text-center text-slate-500 mb-2">por Quantidade Vendida</div>
+          </div>
+        </div>
 
+        <!-- Tabela Detalhada -->
+        <div id="dbDetalhes" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">📋 Análise Detalhada por Produto</h3>
+            <button id="dbToggleDetalhes" class="bg-slate-100 px-3 py-2 rounded text-xs">👁️ Ocultar</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border-collapse bg-white rounded-lg shadow-sm">
+              <thead class="bg-slate-100">
+                <tr>
+                  <th class="p-3 border font-medium">Produto</th>
+                  <th class="p-3 border font-medium text-center">Qtd Vendida</th>
+                  <th class="p-3 border font-medium text-right">Faturamento</th>
+                  <th class="p-3 border font-medium text-right">Margem %</th>
+                  <th class="p-3 border font-medium text-center">Taxa Efetiva</th>
+                  <th class="p-3 border font-medium text-center">Recomendação</th>
+                </tr>
+              </thead>
+              <tbody id="dbTabelaProdutos"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Debug Panel -->
+        <div id="dbDebug" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="font-semibold text-sm">🔍 Debug - Mapeamento de Colunas</h4>
+            <button id="dbDebugClose" class="text-slate-400 hover:text-slate-600 text-xs">×</button>
+          </div>
+          <pre id="dbDebugText" class="bg-slate-50 p-3 rounded text-xs max-h-48 overflow-auto font-mono border"></pre>
         </div>
       </section>
-
-    </div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
-    <div class="bg-white/90 px-4 py-2 rounded-full shadow flex items-center gap-3">
-      <span class="text-sm text-slate-600">Feito para vendedores — integrado por Matheus</span>
+  <footer class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+    <div
+      class="bg-white/95 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg flex items-center gap-3 text-sm text-slate-600">
+      <span>✨ Feito com ❤️ para vendedores Shopee | v2.0 by Matheus</span>
     </div>
   </footer>
 
-  <!-- SCRIPTS: comportamento SPA e integrações -->
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- SCRIPTS: SPA, PWA, integrações -->
   <script>
-    /* ---------- SPA navigation ---------- */
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+        const CACHE_NAME = 'toolbox-v2';
+        const urlsToCache = ['/', 'https://cdn.tailwindcss.com'];
+        
+        self.addEventListener('install', event => {
+          event.waitUntil(
+            caches.open(CACHE_NAME)
+              .then(cache => cache.addAll(urlsToCache))
+          );
+        });
+        
+        self.addEventListener('fetch', event => {
+          event.respondWith(
+            caches.match(event.request)
+              .then(response => response || fetch(event.request))
+          );
+        });
+      `)).then(reg => console.log('SW registrado')).catch(err => console.log('SW erro:', err));
+      });
+    }
+
+    /* ---------- Global Error Handler ---------- */
+    window.addEventListener('error', (e) => {
+      showToast('Ops! Erro detectado. Verifique o console (F12).', 'error');
+      console.error('Erro global:', e.error);
+    });
+
+    /* ---------- Toast Notifications ---------- */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 100);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    /* ---------- SPA Navigation ---------- */
     const pages = document.querySelectorAll('.page');
     function showPage(id) {
       pages.forEach(p => p.classList.remove('visible'));
       const el = document.getElementById(id);
       if (el) el.classList.add('visible');
-      // lazy init: when switching, call necessary init functions
+      // Lazy init
       if (id === 'etiquetas') initEtiquetasUI();
       if (id === 'calculadora') initCalculadoraUI();
       if (id === 'dashboard') initDashboardUI();
-      // hide mobile menu
+      // Close mobile menu
       document.getElementById('mobileMenu').classList.add('hidden');
+      // Update URL for PWA
+      history.pushState({ page: id }, '', `#${id}`);
     }
     document.querySelectorAll('[data-target]').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         const t = e.currentTarget.dataset.target;
         showPage(t);
       });
     });
-    // mobile menu toggle
+    // Mobile menu
     document.getElementById('menuBtn').addEventListener('click', () => {
-      const m = document.getElementById('mobileMenu');
-      m.classList.toggle('hidden');
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+    // Popstate for back button
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.page) showPage(e.state.page);
     });
 
     /* ---------- UTIL ---------- */
@@ -287,16 +633,15 @@
       try {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
       } catch (e) {
-        return 'R$ ' + Number(value).toFixed(2);
+        return 'R$ ' + Number(value).toFixed(2).replace('.', ',');
       }
     }
 
     /* ============================
-       ETIQUETAS (ZPL -> PDF)
+       ETIQUETAS (ZPL -> PDF) - MELHORADO
        ============================ */
     let etqFileList = [];
     function initEtiquetasUI() {
-      // attach events only once
       if (initEtiquetasUI.inited) return; initEtiquetasUI.inited = true;
 
       const input = document.getElementById('etqFileInput');
@@ -305,129 +650,189 @@
       const clearBtn = document.getElementById('etqClearBtn');
       const status = document.getElementById('etqStatus');
       const progressBar = document.getElementById('etqProgress');
-      const eta = document.getElementById('etqEta');
+      const progressText = document.getElementById('etqProgressText');
+      const etaEl = document.getElementById('etqEta');
+      const spinner = document.getElementById('etqSpinner');
 
-      input.addEventListener('change', () => {
-        etqFileList = Array.from(input.files || []);
-        log("Arquivos selecionados: " + etqFileList.map(f=>f.name).join(', '));
+      // Validação de arquivo
+      input.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        const validFiles = files.filter(f => f.name.toLowerCase().match(/\.(txt|zip)$/));
+        if (validFiles.length !== files.length) {
+          showToast('Apenas .txt e .zip são aceitos!', 'error');
+          e.target.value = '';
+          return;
+        }
+        etqFileList = validFiles;
+        progressText.textContent = `${etqFileList.length} arquivo(s) pronto(s)`;
       });
-      drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('border-orange-300'); });
-      drop.addEventListener('dragleave', ()=> drop.classList.remove('border-orange-300'));
-      drop.addEventListener('drop', e=> {
-        e.preventDefault(); drop.classList.remove('border-orange-300');
-        etqFileList = Array.from(e.dataTransfer.files || []);
-        log("Arquivos adicionados via drag & drop: " + etqFileList.map(f=>f.name).join(', '));
+
+      // Drag & Drop melhorado
+      drop.addEventListener('click', () => input.click());
+      drop.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        drop.classList.add('dragover');
+      });
+      drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+      drop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        drop.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files || []);
+        const validFiles = files.filter(f => f.name.toLowerCase().match(/\.(txt|zip)$/));
+        if (validFiles.length !== files.length) {
+          showToast('Apenas .txt e .zip são aceitos!', 'error');
+          return;
+        }
+        etqFileList = validFiles;
+        input.files = validFiles;
+        progressText.textContent = `${etqFileList.length} arquivo(s) carregado(s)`;
       });
 
       processBtn.addEventListener('click', async () => {
-        if (!etqFileList.length) {
-          // if input has files (user used native picker)
-          if (input.files && input.files.length) etqFileList = Array.from(input.files);
-        }
-        if (!etqFileList.length) return alert('Selecione ou arraste arquivos .txt ou .zip');
-        progressBar.style.width = '0%'; status.innerHTML = ''; eta.textContent = 'Tempo estimado: --';
-        const hoje = new Date(); const dataStr = hoje.toISOString().split('T')[0].replace(/-/g,'');
-        const pdf = new jspdf.jsPDF({unit:"mm", format:[100,150]});
-        const totalStart = Date.now();
-        let etiquetas = [];
+        if (!etqFileList.length) return showToast('Selecione arquivos primeiro!', 'error');
+        spinner.classList.remove('hidden');
+        processBtn.disabled = true;
+        progressBar.style.width = '0%';
+        status.innerHTML = '';
+        etaEl.textContent = 'Processando...';
 
-        // extract .txt from files / zip
-        for (const f of etqFileList) {
-          try {
-            if (f.name.toLowerCase().endsWith('.zip')) {
-              const data = await f.arrayBuffer();
-              const zip = await JSZip.loadAsync(data);
-              for (const name of Object.keys(zip.files)) {
-                if (name.toLowerCase().endsWith('.txt')) {
-                  const txt = await zip.files[name].async('string');
-                  etiquetas.push(...await extractZplBlocks(txt));
+        try {
+          const hoje = new Date();
+          const dataStr = hoje.toISOString().split('T')[0].replace(/-/g, '');
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ unit: 'mm', format: [100, 150] });
+          const totalStart = Date.now();
+          let etiquetas = [];
+          let processed = 0;
+
+          // Extrair ZPL com rate limiting
+          for (const f of etqFileList) {
+            try {
+              if (f.name.toLowerCase().endsWith('.zip')) {
+                const data = await f.arrayBuffer();
+                const zip = await JSZip.loadAsync(data);
+                for (const name of Object.keys(zip.files)) {
+                  if (name.toLowerCase().endsWith('.txt')) {
+                    const txt = await zip.files[name].async('string');
+                    etiquetas.push(...await extractZplBlocks(txt));
+                  }
                 }
+              } else if (f.name.toLowerCase().endsWith('.txt')) {
+                const txt = await f.text();
+                etiquetas.push(...await extractZplBlocks(txt));
               }
-            } else if (f.name.toLowerCase().endsWith('.txt')) {
-              const txt = await f.text();
-              etiquetas.push(...await extractZplBlocks(txt));
+              log(`✅ ${f.name} processado`);
+            } catch (e) {
+              log(`❌ Erro em ${f.name}: ${e.message}`);
             }
-          } catch (e) {
-            log("Erro lendo arquivo " + f.name + ": " + e.message);
-          }
-        }
-
-        if (!etiquetas.length) return alert('Nenhuma etiqueta encontrada.');
-
-        // process each zpl via Labelary
-        for (let i=0;i<etiquetas.length;i++) {
-          const zpl = etiquetas[i];
-          log(`Enviando etiqueta ${i+1}/${etiquetas.length}...`);
-          try {
-            const res = await fetch("https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept":"image/png" },
-              body: zpl
-            });
-            if (!res.ok) throw new Error("Labelary retornou " + res.status);
-            const blob = await res.blob();
-            if (i>0) pdf.addPage();
-            const imgData = await blobToDataURL(blob);
-            pdf.addImage(imgData, "PNG", 0, 0, 100, 150);
-
-            // header: rede social (left) and counter (right)
-            const rede = document.getElementById('etqRedeSocial').value || '';
-            pdf.setFontSize(9);
-            pdf.text(rede, 5, 4);
-            pdf.text(`${i+1}/${etiquetas.length}`, 95, 4, {align:'right'});
-
-          } catch (e) {
-            log(`Erro na etiqueta ${i+1}: ${e.message}. Tentando novamente...`);
-            // basic retry with small delay
-            await new Promise(r=>setTimeout(r, 500));
-            i--;
           }
 
-          progressBar.style.width = `${Math.round((i+1)/etiquetas.length*100)}%`;
-          const elapsed = (Date.now()-totalStart)/(i+1);
-          const remaining = ((etiquetas.length-i-1)*elapsed/1000).toFixed(1);
-          eta.textContent = `Tempo estimado: ${remaining}s`;
-        }
+          if (!etiquetas.length) throw new Error('Nenhuma etiqueta ZPL encontrada!');
 
-        const fileName = `etiqueta-${dataStr}-${etiquetas.length}.pdf`;
-        pdf.save(fileName);
-        log('PDF gerado: ' + fileName);
-        // clear
-        etqFileList = []; input.value = '';
+          progressText.textContent = `0/${etiquetas.length}`;
+          let successCount = 0;
+
+          for (let i = 0; i < etiquetas.length; i++) {
+            const zpl = etiquetas[i];
+            try {
+              // Rate limiting: 200ms delay
+              await new Promise(r => setTimeout(r, 200));
+
+              const res = await fetch("https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "image/png" },
+                body: zpl
+              });
+              if (!res.ok) throw new Error(`Labelary: ${res.status}`);
+              const blob = await res.blob();
+              const imgData = await blobToDataURL(blob);
+
+              if (i > 0) pdf.addPage();
+              pdf.addImage(imgData, "PNG", 0, 0, 100, 150);
+
+              // Header personalizado
+              const rede = document.getElementById('etqRedeSocial').value || '';
+              pdf.setFontSize(10);
+              pdf.text(rede, 5, 5);
+              pdf.text(`${i + 1}/${etiquetas.length}`, 95, 5, { align: 'right' });
+
+              successCount++;
+              log(`✅ Etiqueta ${i + 1}/${etiquetas.length} gerada`);
+            } catch (e) {
+              log(`❌ Erro na etiqueta ${i + 1}: ${e.message} - Retry...`);
+              i--; // Retry
+              await new Promise(r => setTimeout(r, 500));
+              continue;
+            }
+
+            processed++;
+            const percent = Math.round((processed / etiquetas.length) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressText.textContent = `${processed}/${etiquetas.length}`;
+
+            const elapsed = (Date.now() - totalStart) / processed;
+            const remaining = ((etiquetas.length - processed) * elapsed / 1000).toFixed(1);
+            etaEl.textContent = `${remaining}s restantes`;
+          }
+
+          const fileName = `etiquetas-shopee-${dataStr}-${successCount}.pdf`;
+          pdf.save(fileName);
+          showToast(`✅ PDF gerado: ${successCount} etiquetas!`, 'success');
+          log(`🎉 PDF salvo: ${fileName}`);
+
+        } catch (e) {
+          showToast(`❌ Erro geral: ${e.message}`, 'error');
+          log(`❌ Erro: ${e.message}`);
+        } finally {
+          spinner.classList.add('hidden');
+          processBtn.disabled = false;
+          etqFileList = [];
+          input.value = '';
+        }
       });
 
       clearBtn.addEventListener('click', () => {
-        etqFileList = []; input.value = ''; progressBar.style.width = '0%'; status.innerHTML = ''; eta.textContent = 'Tempo estimado: --'; log('Arquivos removidos.');
+        etqFileList = [];
+        input.value = '';
+        progressBar.style.width = '0%';
+        progressText.textContent = '0/0';
+        status.innerHTML = '';
+        etaEl.textContent = '--';
+        showToast('Limpo!', 'success');
       });
 
       function log(msg) {
-        const s = document.getElementById('etqStatus');
-        const line = document.createElement('div'); line.textContent = msg; s.appendChild(line); s.scrollTop = s.scrollHeight;
+        const line = document.createElement('div');
+        line.className = 'text-sm py-1';
+        line.innerHTML = `<span class="text-slate-600">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+        status.appendChild(line);
+        status.scrollTop = status.scrollHeight;
       }
 
       async function blobToDataURL(blob) {
         return new Promise((res, rej) => {
-          const r = new FileReader();
-          r.onloadend = ()=>res(r.result);
-          r.onerror = rej;
-          r.readAsDataURL(blob);
+          const reader = new FileReader();
+          reader.onloadend = () => res(reader.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(blob);
         });
       }
 
       async function extractZplBlocks(text) {
         const out = [];
         if (!text) return out;
-        // Shopee demo block or generic ^XA...^XZ
         if (text.includes("~DGR:DEMO.GRF")) {
-          const regexShopee = /~DGR:DEMO\.GRF[\s\S]*?:DEMO\.GRF\^FS\^XZ/gm;
-          let m; while ((m = regexShopee.exec(text)) !== null) {
-            let b = m[0].trim().replace(/[^\x09\x0A\x0D\x20-\x7E]/g,'');
+          const regex = /~DGR:DEMO\.GRF[\s\S]*?:DEMO\.GRF\^FS\^XZ/gm;
+          let m;
+          while ((m = regex.exec(text)) !== null) {
+            let b = m[0].trim().replace(/[^\x09\x0A\x0D\x20-\x7E]/g, '');
             out.push(b);
           }
         } else {
           const regex = /\^XA[\s\S]*?\^XZ/gm;
-          let m; while ((m = regex.exec(text)) !== null) {
-            let b = m[0].trim().replace(/[^\x09\x0A\x0D\x20-\x7E]/g,'');
+          let m;
+          while ((m = regex.exec(text)) !== null) {
+            let b = m[0].trim().replace(/[^\x09\x0A\x0D\x20-\x7E]/g, '');
             out.push(b);
           }
         }
@@ -436,36 +841,155 @@
     }
 
     /* ============================
-       CALCULADORA
+       CALCULADORA - MELHORADA COM LOCALSTORAGE
        ============================ */
+    let calcHistorico = JSON.parse(localStorage.getItem('shopee-calc-hist') || '[]');
     function initCalculadoraUI() {
       if (initCalculadoraUI.inited) return; initCalculadoraUI.inited = true;
-      const btn = document.getElementById('c_calcularBtn');
-      const limpar = document.getElementById('c_limparBtn');
-      btn.addEventListener('click', calcularVenda);
-      limpar.addEventListener('click', () => {
-        ['c_valorVenda','c_taxaComissao','c_taxaServico','c_taxaItem','c_aliquota','c_afiliado','c_precoCusto'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('c_resultado').classList.add('hidden');
+
+      const inputs = {
+        valorVenda: document.getElementById('c_valorVenda'),
+        taxaComissao: document.getElementById('c_taxaComissao'),
+        taxaServico: document.getElementById('c_taxaServico'),
+        taxaItem: document.getElementById('c_taxaItem'),
+        aliquota: document.getElementById('c_aliquota'),
+        afiliado: document.getElementById('c_afiliado'),
+        precoCusto: document.getElementById('c_precoCusto')
+      };
+      const calcularBtn = document.getElementById('c_calcularBtn');
+      const limparBtn = document.getElementById('c_limparBtn');
+      const salvarBtn = document.getElementById('c_salvarBtn');
+      const resultado = document.getElementById('c_resultado');
+      const historicoDiv = document.getElementById('c_historico');
+      const historicoList = document.getElementById('c_historicoList');
+
+      // Carregar último cálculo salvo
+      if (localStorage.getItem('shopee-calc-last')) {
+        const last = JSON.parse(localStorage.getItem('shopee-calc-last'));
+        Object.keys(inputs).forEach(key => inputs[key].value = last[key] || '');
+        calcularVenda(); // Auto-calcular
+      }
+
+      // Validação em tempo real
+      Object.values(inputs).forEach(input => {
+        input.addEventListener('input', () => {
+          if (input.value && (isNaN(input.value) || parseFloat(input.value) < 0)) {
+            input.style.borderColor = '#ef4444';
+          } else {
+            input.style.borderColor = '';
+          }
+        });
       });
 
+      calcularBtn.addEventListener('click', () => {
+        if (validateInputs(inputs)) {
+          calcularVenda();
+          salvarEstadoAtual(); // Salva estado atual
+        } else {
+          showToast('Verifique os valores numéricos!', 'error');
+        }
+      });
+
+      limparBtn.addEventListener('click', () => {
+        Object.values(inputs).forEach(input => input.value = '');
+        resultado.classList.add('hidden');
+        historicoDiv.classList.add('hidden');
+        localStorage.removeItem('shopee-calc-last');
+        showToast('Limpo!', 'success');
+      });
+
+      salvarBtn.addEventListener('click', () => {
+        const state = getEstadoAtual();
+        calcHistorico.unshift(state);
+        calcHistorico = calcHistorico.slice(0, 10); // Limita a 10
+        localStorage.setItem('shopee-calc-hist', JSON.stringify(calcHistorico));
+        renderHistorico();
+        showToast('Salvo no histórico!', 'success');
+      });
+
+      // Render histórico
+      if (calcHistorico.length) {
+        historicoDiv.classList.remove('hidden');
+        renderHistorico();
+      }
+
+      function validateInputs(inputs) {
+        return Object.values(inputs).every(input => !input.value || (!isNaN(input.value) && parseFloat(input.value) >= 0));
+      }
+
+      function getEstadoAtual() {
+        return {
+          valorVenda: inputs.valorVenda.value,
+          taxaComissao: inputs.taxaComissao.value,
+          taxaServico: inputs.taxaServico.value,
+          taxaItem: inputs.taxaItem.value,
+          aliquota: inputs.aliquota.value,
+          afiliado: inputs.afiliado.value,
+          precoCusto: inputs.precoCusto.value,
+          data: new Date().toLocaleString('pt-BR')
+        };
+      }
+
+      function salvarEstadoAtual() {
+        localStorage.setItem('shopee-calc-last', JSON.stringify(getEstadoAtual()));
+      }
+
+      function renderHistorico() {
+        historicoList.innerHTML = '';
+        calcHistorico.forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = 'flex justify-between items-center p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer';
+          div.innerHTML = `
+          <div class="text-sm">
+            <div class="font-medium">${fmtBR(item.valorVenda)} - Margem: ${calcularMargem(item).toFixed(1)}%</div>
+            <div class="text-xs text-slate-500">${item.data}</div>
+          </div>
+          <button onclick="carregarHistorico(${idx})" class="text-xs text-blue-500 hover:text-blue-700">Carregar</button>
+        `;
+          historicoList.appendChild(div);
+        });
+      }
+
+      window.carregarHistorico = (idx) => {
+        const item = calcHistorico[idx];
+        Object.keys(inputs).forEach(key => inputs[key].value = item[key] || '');
+        calcularVenda();
+        showToast('Carregado do histórico!', 'success');
+      };
+
+      function calcularMargem(item) {
+        const venda = parseFloat(item.valorVenda) || 0;
+        const custo = parseFloat(item.precoCusto) || 0;
+        if (!venda) return 0;
+        const taxaCom = (parseFloat(item.taxaComissao) || 0) / 100 * venda;
+        const taxaServ = (parseFloat(item.taxaServico) || 0) / 100 * venda;
+        const taxaItem = parseFloat(item.taxaItem) || 0;
+        const aliquota = (parseFloat(item.aliquota) || 0) / 100 * venda;
+        const afiliado = (parseFloat(item.afiliado) || 0) / 100 * venda;
+        const taxas = taxaCom + taxaServ + taxaItem + aliquota + afiliado;
+        const liquido = venda - taxas - custo;
+        return venda ? (liquido / venda * 100) : 0;
+      }
+
       function calcularVenda() {
-        let valorVenda = parseFloat(document.getElementById("c_valorVenda").value) || 0;
-        let taxaComissao = (parseFloat(document.getElementById("c_taxaComissao").value) || 0) / 100;
-        let taxaServico = (parseFloat(document.getElementById("c_taxaServico").value) || 0) / 100;
-        let taxaItem = parseFloat(document.getElementById("c_taxaItem").value) || 0;
-        let aliquota = (parseFloat(document.getElementById("c_aliquota").value) || 0) / 100;
-        let afiliado = (parseFloat(document.getElementById("c_afiliado").value) || 0) / 100;
-        let precoCusto = parseFloat(document.getElementById("c_precoCusto").value) || 0;
+        const valorVenda = parseFloat(inputs.valorVenda.value) || 0;
+        const taxaComissao = (parseFloat(inputs.taxaComissao.value) || 0) / 100;
+        const taxaServico = (parseFloat(inputs.taxaServico.value) || 0) / 100;
+        const taxaItem = parseFloat(inputs.taxaItem.value) || 0;
+        const aliquota = (parseFloat(inputs.aliquota.value) || 0) / 100;
+        const afiliado = (parseFloat(inputs.afiliado.value) || 0) / 100;
+        const precoCusto = parseFloat(inputs.precoCusto.value) || 0;
 
-        let comissao = valorVenda * taxaComissao;
-        let servico = valorVenda * taxaServico;
-        let imposto = valorVenda * aliquota;
-        let afiliadoValor = valorVenda * afiliado;
+        if (valorVenda <= 0) return showToast('Insira um valor de venda válido!', 'error');
 
-        let taxaShopee = comissao + servico + taxaItem;
-        let valorLiquido = valorVenda - taxaShopee - imposto - afiliadoValor;
-        let lucroLiquido = valorLiquido - precoCusto;
-        let margem = valorVenda ? ((lucroLiquido / valorVenda) * 100).toFixed(2) : "0.00";
+        const comissao = valorVenda * taxaComissao;
+        const servico = valorVenda * taxaServico;
+        const imposto = valorVenda * aliquota;
+        const afiliadoValor = valorVenda * afiliado;
+        const taxaShopee = comissao + servico + taxaItem;
+        const valorLiquido = valorVenda - taxaShopee - imposto - afiliadoValor;
+        const lucroLiquido = valorLiquido - precoCusto;
+        const margem = valorVenda ? (lucroLiquido / valorVenda * 100).toFixed(2) : 0;
 
         document.getElementById("c_taxaShopee").innerText = taxaShopee.toFixed(2);
         document.getElementById("c_imposto").innerText = imposto.toFixed(2);
@@ -474,208 +998,575 @@
         document.getElementById("c_lucroLiquido").innerText = lucroLiquido.toFixed(2);
         document.getElementById("c_margem").innerText = margem;
 
-        document.getElementById("c_resultado").classList.remove('hidden');
+        resultado.classList.remove('hidden');
+        historicoDiv.classList.remove('hidden');
       }
     }
 
     /* ============================
-       DASHBOARD
+       DASHBOARD ANALÍTICO - VERSÃO 2.0
        ============================ */
-    let dbPieChart = null, dbTopBarChart = null;
+    let dbPieChart = null, dbTopBarChart = null, dbMargemChart = null;
+    let dashboardData = null; // Cache global dos dados processados
+
     function initDashboardUI() {
       if (initDashboardUI.inited) return; initDashboardUI.inited = true;
 
+      // Elements
       const fileInput = document.getElementById('dbFileInput');
       const resetBtn = document.getElementById('dbResetBtn');
       const debugBtn = document.getElementById('dbDebugBtn');
       const debugPanel = document.getElementById('dbDebug');
       const debugText = document.getElementById('dbDebugText');
+      const debugClose = document.getElementById('dbDebugClose');
+      const statusDiv = document.getElementById('dbStatus');
+      const statusIcon = document.getElementById('dbStatusIcon');
+      const statusText = document.getElementById('dbStatusText');
+      const analisesDiv = document.getElementById('dbAnalises');
+      const detalhesDiv = document.getElementById('dbDetalhes');
+      const toggleAnalise = document.getElementById('dbToggleAnalise');
+      const toggleDetalhes = document.getElementById('dbToggleDetalhes');
+      const exportInsights = document.getElementById('dbExportInsights');
 
-      fileInput.addEventListener('change', async (e) => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const data = await f.arrayBuffer();
-        const wb = XLSX.read(data, { type: 'array' });
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: null });
-        if (!json || json.length === 0) { alert('Arquivo sem dados ou formato não reconhecido.'); return; }
-        processDashboardData(json);
-      });
+      // Drag & Drop
+      const dropZone = fileInput.parentElement.parentElement;
+      dropZone.addEventListener('dragover', handleDragOver);
+      dropZone.addEventListener('dragleave', handleDragLeave);
+      dropZone.addEventListener('drop', handleDrop);
 
-      resetBtn.addEventListener('click', resetDashboard);
-      debugBtn.addEventListener('click', () => {
-        debugPanel.classList.toggle('hidden');
-      });
-
-      function normalizeHeader(s) {
-        if (s==null) return "";
-        return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+      function handleDragOver(e) {
+        e.preventDefault();
+        dropZone.classList.add('border-orange-300', 'bg-orange-50');
       }
-      function parseNumberRaw(value) {
-        if (value==null) return 0;
-        let s = String(value).trim();
-        if (s === '') return 0;
-        s = s.replace(/(R\$|BRL|\$|€|£)/gi,'').trim();
-        const hasDot = s.indexOf('.') > -1;
-        const hasComma = s.indexOf(',') > -1;
-        if (hasDot && hasComma) {
-          if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g,'').replace(/,/g,'.');
-          else s = s.replace(/,/g,'');
-        } else {
-          if (hasComma && !hasDot) s = s.replace(/,/g,'.');
+
+      function handleDragLeave(e) {
+        dropZone.classList.remove('border-orange-300', 'bg-orange-50');
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-orange-300', 'bg-orange-50');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          fileInput.files = files;
+          handleFileUpload(files[0]);
         }
-        s = s.replace(/[^\d.-]/g,'');
-        const num = parseFloat(s);
-        return isNaN(num) ? 0 : num;
       }
-      function buildHeaderMap(sampleRow) {
+
+      // File upload handler
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFileUpload(e.target.files[0]);
+        }
+      });
+
+      async function handleFileUpload(file) {
+        if (!file) return;
+
+        // Validação
+        const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        if (!validTypes.includes(file.type)) {
+          showStatus('❌ Formato não suportado. Use CSV ou XLSX da Shopee.', 'error');
+          return;
+        }
+
+        showStatus('⏳ Processando relatório Shopee...', 'loading');
+
+        try {
+          const data = await file.arrayBuffer();
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false });
+
+          if (!json || json.length < 2) {
+            throw new Error('Arquivo sem dados válidos');
+          }
+
+          console.log('✅ Dados carregados:', json.length - 1, 'itens processados');
+          dashboardData = await processShopeeData(json);
+          renderDashboard();
+          showStatus(`✅ ${dashboardData.itens} itens processados | ${dashboardData.pedidos} pedidos únicos`, 'success');
+
+        } catch (error) {
+          console.error('❌ Erro:', error);
+          showStatus(`❌ Erro: ${error.message}`, 'error');
+          debugText.textContent += `\n\n--- ERRO ---\n${error.stack}`;
+        }
+      }
+
+      // Status helper
+      function showStatus(message, type) {
+        statusDiv.classList.remove('hidden');
+        statusText.textContent = message;
+
+        statusIcon.className = 'w-4 h-4 rounded-full';
+        statusDiv.className = 'mb-4 p-3 rounded-lg border';
+
+        switch (type) {
+          case 'loading':
+            statusIcon.className += ' bg-blue-400 animate-pulse';
+            statusDiv.className += ' bg-blue-50 border-blue-200';
+            break;
+          case 'success':
+            statusIcon.className += ' bg-green-400';
+            statusDiv.className += ' bg-green-50 border-green-200';
+            break;
+          case 'error':
+            statusIcon.className += ' bg-red-400';
+            statusDiv.className += ' bg-red-50 border-red-200';
+            break;
+        }
+      }
+
+      // Processamento específico para relatório Shopee
+      async function processShopeeData(rows) {
+        console.log('🔍 Processando relatório Shopee...');
+
+        // Mapeamento otimizado para colunas do seu relatório
+        const headerMap = buildHeaderMap(rows[0]);
+        const colunas = {
+          idPedido: findHeader(headerMap, ['id do pedido', 'order id', 'numero do pedido']),
+          statusPedido: findHeader(headerMap, ['status do pedido', 'order status']),
+          nomeProduto: findHeader(headerMap, ['nome do produto', 'product name', 'nome do item']),
+          precoAcordado: findHeader(headerMap, ['preço acordado', 'preco acordado', 'valor do produto']),
+          quantidade: findHeader(headerMap, ['quantidade', 'quantity', 'qty']),
+          subtotalProduto: findHeader(headerMap, ['subtotal do produto', 'valor total', 'total amount']),
+          taxaTransacao: findHeader(headerMap, ['taxa de transação', 'transaction fee']),
+          taxaComissao: findHeader(headerMap, ['taxa de comissão', 'commission fee']),
+          taxaServico: findHeader(headerMap, ['taxa de serviço', 'service fee']),
+          freteEstimado: findHeader(headerMap, ['valor estimado do frete', 'shipping fee']),
+          totalGlobal: findHeader(headerMap, ['total global', 'valor total', 'amount received']),
+          statusDevolucao: findHeader(headerMap, ['status da devolução / reembolso', 'refund status'])
+        };
+
+        console.log('🎯 Colunas mapeadas:', colunas);
+        debugText.textContent = `📋 Colunas encontradas:\n${JSON.stringify(colunas, null, 2)}`;
+
+        // Processar dados
+        let faturamentoBruto = 0, totalTaxas = 0, totalFrete = 0, totalComissao = 0;
+        let totalServico = 0, totalTransacao = 0, itensProcessados = 0;
+        let pedidosUnicos = new Set(), produtos = {}, devolucoes = 0;
+        let valoresValidos = 0;
+
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          const idPedido = row[colunas.idPedido] ? String(row[colunas.idPedido]).trim() : null;
+          const status = row[colunas.statusPedido] ? String(row[colunas.statusPedido]).trim() : '';
+          const nomeProduto = row[colunas.nomeProduto] ? String(row[colunas.nomeProduto]).trim() : 'Produto não identificado';
+          const preco = parseNumberRaw(row[colunas.precoAcordado]);
+          const qtd = parseInt(row[colunas.quantidade] || 1) || 1;
+          const subtotal = parseNumberRaw(row[colunas.subtotalProduto]) || (preco * qtd);
+          const transacao = parseNumberRaw(row[colunas.taxaTransacao]) || 0;
+          const comissao = parseNumberRaw(row[colunas.taxaComissao]) || 0;
+          const servico = parseNumberRaw(row[colunas.taxaServico]) || 0;
+          const frete = parseNumberRaw(row[colunas.freteEstimado]) || 0;
+          const totalGlobal = parseNumberRaw(row[colunas.totalGlobal]) || 0;
+          const temDevolucao = row[colunas.statusDevolucao] && String(row[colunas.statusDevolucao]).toLowerCase().includes('aprovada');
+
+          // Só processa pedidos "Concluído" sem devolução
+          if (status.toLowerCase() !== 'concluído' || temDevolucao || !idPedido || preco <= 0) {
+            if (temDevolucao) devolucoes++;
+            continue;
+          }
+
+          // Agrupar por produto (nome simplificado)
+          const produtoKey = nomeProduto.split(' - ')[0].trim(); // "100 Sacolas Boca de Palhaço"
+          if (!produtos[produtoKey]) {
+            produtos[produtoKey] = { qtd: 0, faturamento: 0, comissao: 0, servico: 0, transacao: 0, frete: 0, totalGlobal: 0 };
+          }
+
+          produtos[produtoKey].qtd += qtd;
+          produtos[produtoKey].faturamento += subtotal;
+          produtos[produtoKey].comissao += comissao;
+          produtos[produtoKey].servico += servico;
+          produtos[produtoKey].transacao += transacao;
+          produtos[produtoKey].frete += frete;
+          produtos[produtoKey].totalGlobal += totalGlobal;
+
+          // Totais gerais
+          faturamentoBruto += subtotal;
+          totalComissao += comissao;
+          totalServico += servico;
+          totalTransacao += transacao;
+          totalTaxas += (comissao + servico + transacao);
+          totalFrete += frete;
+          pedidosUnicos.add(idPedido);
+          itensProcessados++;
+          valoresValidos++;
+        }
+
+        const pedidos = pedidosUnicos.size;
+        const ticketMedio = pedidos > 0 ? faturamentoBruto / pedidos : 0;
+        const freteMedio = valoresValidos > 0 ? totalFrete / valoresValidos : 0;
+        const receitaLiquida = faturamentoBruto - totalTaxas;
+        const roiGeral = faturamentoBruto > 0 ? ((receitaLiquida / totalTaxas) * 100).toFixed(1) : 0;
+        const devolucoesPerc = valoresValidos > 0 ? ((devolucoes / valoresValidos) * 100).toFixed(1) : 0;
+
+        // Calcular margens por produto
+        Object.keys(produtos).forEach(produto => {
+          const p = produtos[produto];
+          const taxasTotais = p.comissao + p.servico + p.transacao;
+          const margem = p.faturamento > 0 ? ((p.totalGlobal - taxasTotais) / p.faturamento * 100) : 0;
+          p.margem = margem.toFixed(1);
+          p.taxaEfetiva = p.faturamento > 0 ? (taxasTotais / p.faturamento * 100) : 0;
+          p.recomendacao = getRecomendacao(p.margem, p.taxaEfetiva);
+        });
+
+        return {
+          itens: itensProcessados,
+          pedidos,
+          faturamentoBruto,
+          receitaLiquida,
+          totalTaxas,
+          totalFrete,
+          totalComissao,
+          totalServico,
+          totalTransacao,
+          ticketMedio,
+          freteMedio,
+          roiGeral,
+          devolucoes,
+          devolucoesPerc,
+          produtos: Object.entries(produtos)
+            .map(([nome, dados]) => ({ nome, ...dados }))
+            .sort((a, b) => b.qtd - a.qtd)
+        };
+      }
+
+      function getRecomendacao(margem, taxaEfetiva) {
+        if (margem >= 25) return { texto: '✅ Excelente', cor: 'text-green-600' };
+        if (margem >= 15) return { texto: '👍 Boa', cor: 'text-blue-600' };
+        if (margem >= 8) return {
+          texto: `⚠️ Regular - Aumente ${((15 - margem) * 1.2).toFixed(1)}% no preço`,
+          cor: 'text-yellow-600'
+        };
+        return {
+          texto: `🚨 Baixa - Aumente ${(20 - margem) * 1.5.toFixed(1)}% no preço ou otimize custos`,
+          cor: 'text-red-600'
+        };
+      }
+
+      function renderDashboard() {
+        const data = dashboardData;
+
+        // KPIs
+        document.getElementById('dbFaturamento').innerText = fmtBR(data.faturamentoBruto);
+        document.getElementById('dbLucro').innerText = fmtBR(data.receitaLiquida);
+        document.getElementById('dbMargemGeral').innerText = `${((data.receitaLiquida / data.faturamentoBruto) * 100).toFixed(1)}%`;
+        document.getElementById('dbPedidos').innerText = data.pedidos.toLocaleString();
+        document.getElementById('dbTicketMedio').innerText = fmtBR(data.ticketMedio);
+        document.getElementById('dbTaxasTotais').innerText = fmtBR(data.totalTaxas);
+        document.getElementById('dbTaxasPerc').innerText = `${((data.totalTaxas / data.faturamentoBruto) * 100).toFixed(1)}%`;
+        document.getElementById('dbFreteMedio').innerText = fmtBR(data.freteMedio);
+        document.getElementById('dbRoi').innerText = `${data.roiGeral}%`;
+        document.getElementById('dbDevolucoes').innerText = data.devolucoes;
+        document.getElementById('dbDevolucoesPerc').innerText = `${data.devolucoesPerc}%`;
+
+        // Mostrar seções
+        document.getElementById('dbKpis').classList.remove('hidden');
+        document.getElementById('dbCharts').classList.remove('hidden');
+        analisesDiv.classList.remove('hidden');
+
+        // Insights
+        renderInsights();
+
+        // Gráficos
+        renderCharts();
+
+        // Tabela
+        renderTabelaProdutos();
+      }
+
+      function renderInsights() {
+        const data = dashboardData;
+        const container = document.getElementById('dbRecomendacoes');
+        container.innerHTML = '';
+
+        const insights = [
+          {
+            titulo: 'Margem Média',
+            valor: `${((data.receitaLiquida / data.faturamentoBruto) * 100).toFixed(1)}%`,
+            cor: data.receitaLiquida / data.faturamentoBruto >= 0.15 ? 'bg-green-100 text-green-800' :
+              data.receitaLiquida / data.faturamentoBruto >= 0.08 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800',
+            texto: data.receitaLiquida / data.faturamentoBruto >= 0.15 ?
+              '✅ Sua margem está excelente! Continue assim.' :
+              data.receitaLiquida / data.faturamentoBruto >= 0.08 ?
+                '⚠️ Margem regular. Considere ajustar preços.' : '🚨 Margem baixa. Ação urgente necessária.'
+          },
+          {
+            titulo: 'Taxa Efetiva Shopee',
+            valor: `${((data.totalTaxas / data.faturamentoBruto) * 100).toFixed(1)}%`,
+            cor: (data.totalTaxas / data.faturamentoBruto) <= 0.12 ? 'bg-green-100 text-green-800' :
+              (data.totalTaxas / data.faturamentoBruto) <= 0.18 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800',
+            texto: (data.totalTaxas / data.faturamentoBruto) <= 0.12 ?
+              '✅ Taxas controladas. Bom gerenciamento.' :
+              (data.totalTaxas / data.faturamentoBruto) <= 0.18 ?
+                '⚠️ Taxas elevadas. Avalie precificação.' : '🚨 Taxas muito altas. Revise estratégia.'
+          },
+          {
+            titulo: 'ROI sobre Taxas',
+            valor: `${data.roiGeral}%`,
+            cor: data.roiGeral >= 200 ? 'bg-green-100 text-green-800' :
+              data.roiGeral >= 100 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800',
+            texto: data.roiGeral >= 200 ?
+              '✅ Excelente retorno sobre taxas!' :
+              data.roiGeral >= 100 ?
+                '⚠️ ROI aceitável. Há espaço para melhorar.' : '🚨 ROI baixo. Otimize custos.'
+          },
+          {
+            titulo: 'Frete Médio',
+            valor: fmtBR(data.freteMedio),
+            cor: data.freteMedio <= 12 ? 'bg-green-100 text-green-800' :
+              data.freteMedio <= 18 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800',
+            texto: data.freteMedio <= 12 ?
+              '✅ Frete competitivo.' :
+              data.freteMedio <= 18 ?
+                '⚠️ Frete um pouco alto. Considere opções.' : '🚨 Frete muito caro. Impacta competitividade.'
+          }
+        ];
+
+        insights.forEach(insight => {
+          const card = document.createElement('div');
+          card.className = `p-4 rounded-xl border shadow-sm ${insight.cor}`;
+          card.innerHTML = `
+        <div class="font-semibold text-sm mb-1">${insight.titulo}</div>
+        <div class="text-lg font-bold mb-2">${insight.valor}</div>
+        <div class="text-xs">${insight.texto}</div>
+      `;
+          container.appendChild(card);
+        });
+      }
+
+      function renderCharts() {
+        const data = dashboardData;
+
+        // Destruir gráficos antigos
+        if (dbPieChart) dbPieChart.destroy();
+        if (dbTopBarChart) dbTopBarChart.destroy();
+        if (dbMargemChart) dbMargemChart.destroy();
+
+        // Gráfico de Margens
+        const ctxMargem = document.getElementById('dbMargemChart').getContext('2d');
+        const topMargens = data.produtos.slice(0, 8);
+        dbMargemChart = new Chart(ctxMargem, {
+          type: 'bar',
+          data: {
+            labels: topMargens.map(p => p.nome.substring(0, 25) + '...'),
+            datasets: [{
+              label: 'Margem %',
+              data: topMargens.map(p => parseFloat(p.margem)),
+              backgroundColor: topMargens.map(p =>
+                parseFloat(p.margem) >= 15 ? '#10B981' :
+                  parseFloat(p.margem) >= 8 ? '#F59E0B' : '#EF4444'
+              )
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, max: 40 }
+            }
+          }
+        });
+
+        // Gráfico de Taxas (Pie)
+        const ctxPie = document.getElementById('dbPieChart').getContext('2d');
+        dbPieChart = new Chart(ctxPie, {
+          type: 'doughnut',
+          data: {
+            labels: ['Comissão', 'Serviço', 'Transação'],
+            datasets: [{
+              data: [data.totalComissao, data.totalServico, data.totalTransacao],
+              backgroundColor: ['#F59E0B', '#3B82F6', '#EF4444']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const perc = ((context.parsed / total) * 100).toFixed(1);
+                    return `${context.label}: R$ ${fmtBR(context.parsed)} (${perc}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // Top Produtos (Bar horizontal)
+        const ctxBar = document.getElementById('dbTopBarChart').getContext('2d');
+        const top8 = data.produtos.slice(0, 8);
+        dbTopBarChart = new Chart(ctxBar, {
+          type: 'bar',
+          data: {
+            labels: top8.map(p => p.nome.substring(0, 20)),
+            datasets: [{
+              label: 'Quantidade Vendida',
+              data: top8.map(p => p.qtd),
+              backgroundColor: '#F97316'
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      function renderTabelaProdutos() {
+        const data = dashboardData;
+        const tbody = document.getElementById('dbTabelaProdutos');
+        tbody.innerHTML = '';
+
+        data.produtos.slice(0, 20).forEach(produto => {
+          const tr = document.createElement('tr');
+          const corMargem = produto.margem >= 15 ? 'text-green-600' :
+            produto.margem >= 8 ? 'text-yellow-600' : 'text-red-600';
+          const corRecomendacao = produto.recomendacao.cor;
+
+          tr.className = 'hover:bg-slate-50';
+          tr.innerHTML = `
+        <td class="p-3 border font-medium">${produto.nome}</td>
+        <td class="p-3 border text-center">${produto.qtd.toLocaleString()}</td>
+        <td class="p-3 border text-right">${fmtBR(produto.faturamento)}</td>
+        <td class="p-3 border text-right ${corMargem} font-semibold">${produto.margem}%</td>
+        <td class="p-3 border text-center">${produto.taxaEfetiva.toFixed(1)}%</td>
+        <td class="p-3 border text-center"><span class="${corRecomendacao} text-xs font-medium">${produto.recomendacao.texto}</span></td>
+      `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Event listeners
+      resetBtn.addEventListener('click', resetDashboard);
+      debugBtn.addEventListener('click', () => debugPanel.classList.toggle('hidden'));
+      debugClose.addEventListener('click', () => debugPanel.classList.add('hidden'));
+      toggleAnalise.addEventListener('click', () => analisesDiv.classList.toggle('hidden'));
+      toggleDetalhes.addEventListener('click', () => {
+        detalhesDiv.classList.toggle('hidden');
+        toggleDetalhes.innerText = detalhesDiv.classList.contains('hidden') ? '👁️ Ver detalhes' : '🙈 Ocultar';
+      });
+
+      exportInsights.addEventListener('click', exportarInsights);
+
+      function exportarInsights() {
+        const data = dashboardData;
+        const csv = [
+          ['Dashboard Analítico - Sacolas Personalizadas'],
+          ['Período', '01/08/2025 - 31/08/2025'],
+          ['', ''],
+          ['Métricas Gerais', 'Valor', 'Observação'],
+          ['Faturamento Bruto', fmtBR(data.faturamentoBruto), 'Total vendido'],
+          ['Lucro Líquido', fmtBR(data.receitaLiquida), 'Após taxas Shopee'],
+          ['Margem Geral', `${((data.receitaLiquida / data.faturamentoBruto) * 100).toFixed(1)}%`, 'Rentabilidade média'],
+          ['Pedidos Únicos', data.pedidos, 'Número de transações'],
+          ['Ticket Médio', fmtBR(data.ticketMedio), 'Valor médio por pedido'],
+          ['Taxas Totais', fmtBR(data.totalTaxas), 'Comissão + Serviço + Transação'],
+          ['ROI sobre Taxas', `${data.roiGeral}%`, 'Retorno sobre custos Shopee'],
+          ['', ''],
+          ['Análise por Produto', 'Qtd', 'Faturamento', 'Margem %', 'Taxa Efetiva %', 'Recomendação']
+        ];
+
+        data.produtos.slice(0, 15).forEach(p => {
+          csv.push([
+            p.nome.substring(0, 40),
+            p.qtd,
+            fmtBR(p.faturamento),
+            p.margem + '%',
+            p.taxaEfetiva.toFixed(1) + '%',
+            p.recomendacao.texto
+          ]);
+        });
+
+        const csvContent = csv.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `dashboard-sacolas-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+      }
+
+      // Utilitários
+      function buildHeaderMap(row) {
         const map = {};
-        const headers = Object.keys(sampleRow || {});
-        headers.forEach(h => map[normalizeHeader(h)] = h);
+        Object.keys(row || {}).forEach(key => {
+          map[normalizeHeader(key)] = key;
+        });
         return map;
       }
-      function findHeader(headerMap, candidates) {
-        for (let c of candidates) {
-          const n = normalizeHeader(c);
-          if (headerMap[n]) return headerMap[n];
+
+      function findHeader(map, candidates) {
+        for (let candidate of candidates) {
+          if (map[normalizeHeader(candidate)]) {
+            return map[normalizeHeader(candidate)];
+          }
         }
         return null;
       }
 
-      const CAND = {
-        orderId: ["id do pedido","order id","numero do pedido","número do pedido","order no","order number","idpedido","order"],
-        productName: ["nome do produto","product name","item name","nome do item","item","produto","product"],
-        qty: ["quantidade","quantity","qty","qtd","qtde"],
-        valor: ["valor total","valor do produto","preco acordado","preço acordado","subtotal do produto","total global","total","total amount","valor","preco","preço"],
-        comissao: ["taxa de comissao","taxa de comissão","comissao","comissão","commission","commission fee"],
-        servico: ["taxa de servico","taxa de serviço","servico","serviço","service fee"],
-        transacao: ["taxa de transacao","taxa de transação","transacao","transaction fee","transaction"],
-        frete: ["taxa de frete","valor estimado do frete","frete pago","shipping fee","taxa de envio","valor do frete","shipping"],
-        status: ["status do pedido","order status","status"]
-      };
+      function normalizeHeader(s) {
+        if (!s) return '';
+        return String(s).toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]/g, '');
+      }
 
-      async function processDashboardData(rows) {
-        const headerMap = buildHeaderMap(rows[0]);
-        if (debugText) debugText.innerText = "Header map:\n" + JSON.stringify(headerMap, null, 2);
+      function parseNumberRaw(value) {
+        if (value == null || value === '') return 0;
+        let s = String(value).trim();
+        s = s.replace(/(R\$|\$|€|£)/g, '').trim();
 
-        const col = {
-          orderId: findHeader(headerMap, CAND.orderId),
-          productName: findHeader(headerMap, CAND.productName),
-          qty: findHeader(headerMap, CAND.qty),
-          valor: findHeader(headerMap, CAND.valor),
-          comissao: findHeader(headerMap, CAND.comissao),
-          servico: findHeader(headerMap, CAND.servico),
-          transacao: findHeader(headerMap, CAND.transacao),
-          frete: findHeader(headerMap, CAND.frete),
-          status: findHeader(headerMap, CAND.status)
-        };
+        const hasDot = s.includes('.');
+        const hasComma = s.includes(',');
 
-        let faturamento = 0, comissao=0, servico=0, transacao=0, frete=0;
-        const produtos = {}; const pedidosSet = new Set();
-
-        rows.forEach(row => {
-          const orderIdRaw = col.orderId ? row[col.orderId] : null;
-          const productRaw = col.productName ? row[col.productName] : null;
-          const qtyRaw = col.qty ? row[col.qty] : null;
-          const valorRaw = col.valor ? row[col.valor] : null;
-          const comissaoRaw = col.comissao ? row[col.comissao] : null;
-          const servicoRaw = col.servico ? row[col.servico] : null;
-          const transacaoRaw = col.transacao ? row[col.transacao] : null;
-          const freteRaw = col.frete ? row[col.frete] : null;
-
-          const orderId = orderIdRaw == null ? null : String(orderIdRaw).trim();
-          const product = (productRaw == null || String(productRaw).trim()==="") ? "Não informado" : String(productRaw).trim();
-
-          let qty = 1;
-          if (qtyRaw != null && String(qtyRaw).trim() !== "") {
-            const p = parseNumberRaw(qtyRaw);
-            qty = (p && !isNaN(p)) ? Math.round(p) : 1;
-            if (qty <= 0) qty = 1;
+        if (hasDot && hasComma) {
+          if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+            s = s.replace(/\./g, '').replace(/,/g, '.');
+          } else {
+            s = s.replace(/,/g, '');
           }
-          const valor = parseNumberRaw(valorRaw);
-          const com = parseNumberRaw(comissaoRaw);
-          const serv = parseNumberRaw(servicoRaw);
-          const trans = parseNumberRaw(transacaoRaw);
-          const frt = parseNumberRaw(freteRaw);
+        } else if (hasComma) {
+          s = s.replace(/,/g, '.');
+        }
 
-          if (orderId) pedidosSet.add(orderId);
-          faturamento += valor;
-          comissao += com;
-          servico += serv;
-          transacao += trans;
-          frete += frt;
-
-          if (!produtos[product]) produtos[product] = { qtd:0, valor:0 };
-          produtos[product].qtd += qty;
-          produtos[product].valor += valor;
-        });
-
-        const pedidos = pedidosSet.size;
-        const taxas = comissao + servico + transacao;
-        const receitasLiquida = faturamento - taxas;
-        const ticket = pedidos > 0 ? faturamento / pedidos : 0;
-
-        // update UI
-        document.getElementById("dbFaturamento").innerText = fmtBR(faturamento);
-        document.getElementById("dbReceita").innerText = fmtBR(receitasLiquida);
-        document.getElementById("dbReceitaPerc").innerText = faturamento === 0 ? "0,0%" : ((receitasLiquida/faturamento)*100).toFixed(1) + "%";
-        document.getElementById("dbPedidos").innerText = pedidos;
-        document.getElementById("dbTicket").innerText = fmtBR(ticket);
-        document.getElementById("dbFrete").innerText = fmtBR(frete);
-        document.getElementById("dbTaxasTotais").innerText = fmtBR(taxas);
-        document.getElementById("dbTaxasPerc").innerText = faturamento === 0 ? "0,0%" : ((taxas/faturamento)*100).toFixed(1) + "%";
-
-        document.getElementById("dbKpis").classList.remove('hidden');
-        document.getElementById("dbCharts").classList.remove('hidden');
-
-        if (dbPieChart) { dbPieChart.destroy(); dbPieChart = null; }
-        if (dbTopBarChart) { dbTopBarChart.destroy(); dbTopBarChart = null; }
-
-        // Pie
-        const ctxPie = document.getElementById('dbPieChart').getContext('2d');
-        dbPieChart = new Chart(ctxPie, {
-          type: 'pie',
-          data: {
-            labels: ['Comissão','Serviço','Transação','Frete Pago'],
-            datasets: [{ data: [comissao, servico, transacao, frete] }]
-          },
-          options: { responsive:true, maintainAspectRatio:false }
-        });
-
-        // Top produtos
-        const topArr = Object.entries(produtos).map(([name,v])=>({name, qtd:v.qtd, valor:v.valor})).sort((a,b)=>b.qtd-a.qtd).slice(0,10);
-        const tbody = document.getElementById('dbTopProdutos'); tbody.innerHTML = '';
-        topArr.forEach(it=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td class="p-2 border">${it.name}</td><td class="p-2 border text-center">${it.qtd}</td><td class="p-2 border text-right">${fmtBR(it.valor)}</td>`;
-          tbody.appendChild(tr);
-        });
-
-        const ctxBar = document.getElementById('dbTopBarChart').getContext('2d');
-        dbTopBarChart = new Chart(ctxBar, {
-          type: 'bar',
-          data: { labels: topArr.map(x=>x.name), datasets:[{ label:'Quantidade', data: topArr.map(x=>x.qtd) }] },
-          options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-        });
-
-      } // end process
+        s = s.replace(/[^\d.-]/g, '');
+        const num = parseFloat(s);
+        return isNaN(num) ? 0 : num;
+      }
 
       function resetDashboard() {
         document.getElementById('dbFileInput').value = '';
         document.getElementById('dbKpis').classList.add('hidden');
         document.getElementById('dbCharts').classList.add('hidden');
-        document.getElementById('dbTopProdutos').innerHTML = '';
-        if (dbPieChart) { dbPieChart.destroy(); dbPieChart = null; }
-        if (dbTopBarChart) { dbTopBarChart.destroy(); dbTopBarChart = null; }
-        if (!document.getElementById('dbDebug').classList.contains('hidden')) {
-          document.getElementById('dbDebugText').innerText = '';
-        }
+        analisesDiv.classList.add('hidden');
+        detalhesDiv.classList.add('hidden');
+        if (dbPieChart) dbPieChart.destroy();
+        if (dbTopBarChart) dbTopBarChart.destroy();
+        if (dbMargemChart) dbMargemChart.destroy();
+        dashboardData = null;
+        showStatus('', ''); // Limpa status
       }
-    } // end initDashboardUI
+    }
 
-    // Start on home
-    showPage('home');
+    // Inicializações
+    document.addEventListener('DOMContentLoaded', () => {
+      initCalculadoraUI();
+      initDashboardUI();
+    });
   </script>
 
 </body>
+
 </html>
